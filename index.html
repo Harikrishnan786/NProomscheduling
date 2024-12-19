@@ -87,7 +87,7 @@
         margin-top: 20px;
     }
     
-    .booking-log {
+    .booking-log, .public-booking-log {
         margin-top: 20px;
     }
     
@@ -143,6 +143,10 @@
     <div class="booking-log" id="booking-log">
         <h2>Booking Log</h2>
     </div>
+
+    <div class="public-booking-log" id="public-booking-log">
+        <h2>All Bookings</h2>
+    </div>
 </div>
 
 <div id="booking-modal">
@@ -151,11 +155,7 @@
         <label for="booking-date">Select Date:</label>
         <input type="date" id="booking-date" required><br><br>
         <label for="booking-time">Select Time Slot:</label>
-        <select id="booking-time">
-            <option value="09:00">09:00 - 09:30</option>
-            <option value="09:30">09:30 - 10:00</option>
-            <option value="10:00">10:00 - 10:30</option>
-        </select><br><br>
+        <select id="booking-time"></select><br><br>
         <button class="book-button" onclick="bookRoom()">Confirm Booking</button>
         <button class="close-button" onclick="closeBookingModal()">Cancel</button>
     </div>
@@ -165,9 +165,22 @@
     let selectedRoom = '';
     const bookings = {};
 
+    function generateTimeSlots() {
+        const timeSelect = document.getElementById('booking-time');
+        timeSelect.innerHTML = '';
+        for (let hour = 7; hour < 20; hour++) {
+            for (let minute = 0; minute < 60; minute += 30) {
+                const time = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+                const nextTime = `${String(hour).padStart(2, '0')}:${String(minute + 30).padStart(2, '0')}`;
+                timeSelect.innerHTML += `<option value="${time}">${time} - ${nextTime}</option>`;
+            }
+        }
+    }
+
     function openBookingModal(room) {
         selectedRoom = room;
         document.getElementById('room-name').innerText = room;
+        generateTimeSlots();
         document.getElementById('booking-modal').style.display = 'flex';
     }
 
@@ -182,38 +195,18 @@
         const time = document.getElementById('booking-time').value;
 
         const dateTime = `${date} ${time}`;
-        
         if (!bookings[selectedRoom]) bookings[selectedRoom] = [];
-        const existingBooking = bookings[selectedRoom].find(booking => booking.dateTime === dateTime);
-        
-        if (existingBooking) {
-            alert(`Room unavailable. Employee ${existingBooking.name} (ID: ${existingBooking.empId}) has already booked.`);
-        } else {
-            const booking = { dateTime, name, empId };
-            bookings[selectedRoom].push(booking);
-            updateBookingLog();
-            alert('Room booked successfully!');
-            closeBookingModal();
-        }
+
+        const booking = { dateTime, name, empId, room: selectedRoom };
+        bookings[selectedRoom].push(booking);
+        updatePublicBookingLog();
+        alert('Room booked successfully!');
+        closeBookingModal();
     }
 
-    function updateBookingLog() {
-        const log = document.getElementById('booking-log');
-        log.innerHTML = '<h2>Booking Log</h2>';
-        for (const room in bookings) {
-            bookings[room].forEach((booking, index) => {
-                const entry = document.createElement('div');
-                entry.classList.add('booking-log-entry');
-                entry.innerHTML = `${room} - ${booking.dateTime} - ${booking.name} (ID: ${booking.empId})`;
-                if (document.getElementById('employee-name').value === booking.name && document.getElementById('employee-id').value === booking.empId) {
-                    const cancelButton = document.createElement('button');
-                    cancelButton.classList.add('cancel-button');
-                    cancelButton.innerText = 'Cancel';
-                    entry.append(cancelButton);
-                }
-                log.append(entry);
-            });
-        }
+    function updatePublicBookingLog() {
+        const publicLog = document.getElementById('public-booking-log');
+        publicLog.innerHTML = '<h2>All Bookings</h2>';
     }
 </script>
 </body>
