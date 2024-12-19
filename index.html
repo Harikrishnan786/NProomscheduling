@@ -86,6 +86,30 @@
         cursor: pointer;
         margin-top: 20px;
     }
+    
+    .booking-log {
+        margin-top: 20px;
+    }
+    
+    .booking-log-entry {
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        background-color: #fafafa;
+        margin-bottom: 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .cancel-button {
+        background-color: #dc3545;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        border-radius: 5px;
+        cursor: pointer;
+    }
 </style>
 </head>
 <body>
@@ -115,6 +139,10 @@
             <button class="book-button" onclick="openBookingModal('C')">Book Now</button>
         </div>
     </div>
+
+    <div class="booking-log" id="booking-log">
+        <h2>Booking Log</h2>
+    </div>
 </div>
 
 <div id="booking-modal">
@@ -127,17 +155,6 @@
             <option value="09:00">09:00 - 09:30</option>
             <option value="09:30">09:30 - 10:00</option>
             <option value="10:00">10:00 - 10:30</option>
-            <option value="10:30">10:30 - 11:00</option>
-            <option value="11:00">11:00 - 11:30</option>
-            <option value="11:30">11:30 - 12:00</option>
-            <option value="12:00">12:00 - 12:30</option>
-            <option value="12:30">12:30 - 13:00</option>
-            <option value="13:00">13:00 - 13:30</option>
-            <option value="13:30">13:30 - 14:00</option>
-            <option value="14:00">14:00 - 14:30</option>
-            <option value="14:30">14:30 - 15:00</option>
-            <option value="15:00">15:00 - 15:30</option>
-            <option value="15:30">15:30 - 16:00</option>
         </select><br><br>
         <button class="book-button" onclick="bookRoom()">Confirm Booking</button>
         <button class="close-button" onclick="closeBookingModal()">Cancel</button>
@@ -151,8 +168,6 @@
     function openBookingModal(room) {
         selectedRoom = room;
         document.getElementById('room-name').innerText = room;
-        document.getElementById('booking-date').value = '';
-        document.getElementById('booking-time').value = '';
         document.getElementById('booking-modal').style.display = 'flex';
     }
 
@@ -166,28 +181,40 @@
         const date = document.getElementById('booking-date').value;
         const time = document.getElementById('booking-time').value;
 
-        if (!name || !empId) {
-            alert('Please enter your name and employee ID.');
-            return;
-        }
-
         const dateTime = `${date} ${time}`;
-
-        if (!bookings[selectedRoom]) {
-            bookings[selectedRoom] = [];
-        }
-
+        
+        if (!bookings[selectedRoom]) bookings[selectedRoom] = [];
         const existingBooking = bookings[selectedRoom].find(booking => booking.dateTime === dateTime);
         
         if (existingBooking) {
-            alert(`Room unavailable. The employee ${existingBooking.name} (ID: ${existingBooking.empId}) has already booked this room for the selected time.`);
+            alert(`Room unavailable. Employee ${existingBooking.name} (ID: ${existingBooking.empId}) has already booked.`);
         } else {
-            bookings[selectedRoom].push({ dateTime, name, empId });
-            alert(`Room ${selectedRoom} booked successfully for ${date} at ${time}.`);
+            const booking = { dateTime, name, empId };
+            bookings[selectedRoom].push(booking);
+            updateBookingLog();
+            alert('Room booked successfully!');
             closeBookingModal();
         }
     }
-</script>
 
+    function updateBookingLog() {
+        const log = document.getElementById('booking-log');
+        log.innerHTML = '<h2>Booking Log</h2>';
+        for (const room in bookings) {
+            bookings[room].forEach((booking, index) => {
+                const entry = document.createElement('div');
+                entry.classList.add('booking-log-entry');
+                entry.innerHTML = `${room} - ${booking.dateTime} - ${booking.name} (ID: ${booking.empId})`;
+                if (document.getElementById('employee-name').value === booking.name && document.getElementById('employee-id').value === booking.empId) {
+                    const cancelButton = document.createElement('button');
+                    cancelButton.classList.add('cancel-button');
+                    cancelButton.innerText = 'Cancel';
+                    entry.append(cancelButton);
+                }
+                log.append(entry);
+            });
+        }
+    }
+</script>
 </body>
 </html>
