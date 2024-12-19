@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Room Booking System</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .hidden { 
+            display: none; 
+        }
+        
+        .modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            z-index: 1000;
+        }
+        
+        #notification {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background-color: #ffcccc;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        
+        #room-list ul {
+            list-style: none;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+        
+        #room-list li {
+            background-color: #333;
+            color: #fff;
+            width: 120px;
+            height: 120px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+            position: relative;
+        }
+        
+        #room-list li button {
+            background-color: red;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 14px;
+            position: absolute;
+            bottom: 10px;
+            cursor: pointer;
+        }
+        
+        #room-list li:hover {
+            background-color: #555;
+        }
+        
+        #room-list li button:hover {
+            background-color: darkred;
+        }
+    </style>
+</head>
+<body>
+    <h1>Room Booking System</h1>
+    <div>
+        <label for="employeeName">Employee Name:</label>
+        <input type="text" id="employeeName" placeholder="Enter your name" required>
+        <label for="employeeId">Employee ID:</label>
+        <input type="text" id="employeeId" placeholder="Enter your Employee ID" required>
+    </div>
+
+    <div id="room-list">
+        <h2>Available Rooms</h2>
+        <ul>
+            <li>Room A <button onclick="openBookingModal('A')">Book Now</button></li>
+            <li>Room B <button onclick="openBookingModal('B')">Book Now</button></li>
+            <li>Room C <button onclick="openBookingModal('C')">Book Now</button></li>
+        </ul>
+    </div>
+
+    <div id="booking-modal" class="modal hidden">
+        <h2>Book Room <span id="room-name"></span></h2>
+        <label for="booking-date">Select Date:</label>
+        <input type="date" id="booking-date" required>
+        <label for="booking-time">Select Time:</label>
+        <select id="booking-time"></select>
+        <button onclick="bookRoom()">Confirm Booking</button>
+        <button onclick="closeModal()">Cancel</button>
+    </div>
+
+    <div id="notification" class="hidden"></div>
+
+    <script>
+        const bookings = [];
+
+        const generateTimeSlots = () => {
+            const slots = [];
+            for (let hour = 7; hour < 20; hour++) {
+                slots.push(`${hour}:00 - ${hour}:30`);
+                slots.push(`${hour}:30 - ${hour + 1}:00`);
+            }
+            return slots;
+        };
+
+        const populateTimeSlots = () => {
+            const timeSelect = document.getElementById('booking-time');
+            timeSelect.innerHTML = '';
+            const slots = generateTimeSlots();
+            slots.forEach(slot => {
+                const option = document.createElement('option');
+                option.value = slot;
+                option.textContent = slot;
+                timeSelect.appendChild(option);
+            });
+        };
+
+        function openBookingModal(room) {
+            document.getElementById('room-name').textContent = room;
+            document.getElementById('booking-modal').classList.remove('hidden');
+            populateTimeSlots();
+        }
+
+        function closeModal() {
+            document.getElementById('booking-modal').classList.add('hidden');
+        }
+
+        function bookRoom() {
+            const employeeName = document.getElementById('employeeName').value.trim();
+            const employeeId = document.getElementById('employeeId').value.trim();
+            const roomName = document.getElementById('room-name').textContent;
+            const bookingDate = document.getElementById('booking-date').value;
+            const bookingTime = document.getElementById('booking-time').value;
+
+            if (!employeeName || !employeeId || !bookingDate || !bookingTime) {
+                alert('Please fill in all fields.');
+                return;
+            }
+
+            const conflictingBooking = bookings.find(booking => 
+                booking.room === roomName && 
+                booking.date === bookingDate && 
+                booking.time === bookingTime
+            );
+
+            if (conflictingBooking) {
+                alert(`The room is already booked by ${conflictingBooking.employeeName} (ID: ${conflictingBooking.employeeId}). Please select a different room, date, or time.`);
+                return;
+            }
+
+            bookings.push({
+                employeeName,
+                employeeId,
+                room: roomName,
+                date: bookingDate,
+                time: bookingTime
+            });
+
+            alert(`Room ${roomName} booked successfully on ${bookingDate} at ${bookingTime}`);
+            closeModal();
+        }
+    </script>
+</body>
+</html>
