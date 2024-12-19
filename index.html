@@ -122,8 +122,23 @@
         <h2>Book Room <span id="room-name"></span></h2>
         <label for="booking-date">Select Date:</label>
         <input type="date" id="booking-date" required><br><br>
-        <label for="booking-time">Select Time:</label>
-        <input type="time" id="booking-time" required><br><br>
+        <label for="booking-time">Select Time Slot:</label>
+        <select id="booking-time">
+            <option value="09:00">09:00 - 09:30</option>
+            <option value="09:30">09:30 - 10:00</option>
+            <option value="10:00">10:00 - 10:30</option>
+            <option value="10:30">10:30 - 11:00</option>
+            <option value="11:00">11:00 - 11:30</option>
+            <option value="11:30">11:30 - 12:00</option>
+            <option value="12:00">12:00 - 12:30</option>
+            <option value="12:30">12:30 - 13:00</option>
+            <option value="13:00">13:00 - 13:30</option>
+            <option value="13:30">13:30 - 14:00</option>
+            <option value="14:00">14:00 - 14:30</option>
+            <option value="14:30">14:30 - 15:00</option>
+            <option value="15:00">15:00 - 15:30</option>
+            <option value="15:30">15:30 - 16:00</option>
+        </select><br><br>
         <button class="book-button" onclick="bookRoom()">Confirm Booking</button>
         <button class="close-button" onclick="closeBookingModal()">Cancel</button>
     </div>
@@ -153,11 +168,6 @@
 
         if (!name || !empId) {
             alert('Please enter your name and employee ID.');
-            return;
-        }
-
-        if (!date || !time) {
-            alert('Please select a valid date and time.');
             return;
         }
 
